@@ -25,10 +25,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $tipoUsuario
  * @property int|null $qrUser
  * @property bool|null $usu_status
+ * @property string|null $prevision
+ * @property string|null $plan_salud
+ * @property bool|null $ahorro_voluntario
  * 
- * @property Collection|Bono[] $bonos
  * @property Collection|Contrato[] $contratos
  * @property Collection|Horario[] $horarios
+ * @property LiquidacionBono $liquidacion_bono
  * @property Collection|Permiso[] $permisos
  *
  * @package App\Models
@@ -45,7 +48,8 @@ class Usuario extends Model
 		'pin' => 'int',
 		'tipoUsuario' => 'int',
 		'qrUser' => 'int',
-		'usu_status' => 'bool'
+		'usu_status' => 'bool',
+		'ahorro_voluntario' => 'bool'
 	];
 
 	protected $fillable = [
@@ -60,13 +64,11 @@ class Usuario extends Model
 		'contrasena',
 		'tipoUsuario',
 		'qrUser',
-		'usu_status'
+		'usu_status',
+		'prevision',
+		'plan_salud',
+		'ahorro_voluntario'
 	];
-
-	public function bonos()
-	{
-		return $this->hasMany(Bono::class, 'rut');
-	}
 
 	public function contratos()
 	{
@@ -76,6 +78,11 @@ class Usuario extends Model
 	public function horarios()
 	{
 		return $this->hasMany(Horario::class, 'rut');
+	}
+
+	public function liquidacion_bono()
+	{
+		return $this->hasOne(LiquidacionBono::class, 'rut');
 	}
 
 	public function permisos()

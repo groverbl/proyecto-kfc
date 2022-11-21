@@ -27,11 +27,9 @@ class Contrato extends Model
 {
 	protected $table = 'contrato';
 	protected $primaryKey = 'idContrato';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'idContrato' => 'int',
 		'con_status' => 'bool',
 		'tipoContrato' => 'bool',
 		'sueldoBase' => 'int'

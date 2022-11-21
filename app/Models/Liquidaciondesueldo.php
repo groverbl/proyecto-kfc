@@ -6,7 +6,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Collection;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -14,10 +14,11 @@ use Illuminate\Database\Eloquent\Model;
  * 
  * @property int $idLiquidacion
  * @property bool|null $liq_status
- * @property string|null $liq_nombre
+ * @property string|null $nom_nombre
  * @property string|null $urlLiquidacion
+ * @property Carbon|null $fecha_liquidacion
  * 
- * @property Collection|Bono[] $bonos
+ * @property LiquidacionBono $liquidacion_bono
  *
  * @package App\Models
  */
@@ -33,14 +34,20 @@ class Liquidaciondesueldo extends Model
 		'liq_status' => 'bool'
 	];
 
-	protected $fillable = [
-		'liq_status',
-		'liq_nombre',
-		'urlLiquidacion'
+	protected $dates = [
+		'fecha_liquidacion'
 	];
 
-	public function bonos()
+	protected $fillable = [
+		'liq_status',
+		'idLiquidacion',
+		'nom_nombre',
+		'urlLiquidacion',
+		'fecha_liquidacion'
+	];
+
+	public function liquidacion_bono()
 	{
-		return $this->hasMany(Bono::class, 'idLiquidacion');
+		return $this->hasOne(LiquidacionBono::class, 'idLiquidacion');
 	}
 }
