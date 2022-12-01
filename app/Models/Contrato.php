@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $urlContrato
  * @property bool|null $tipoContrato
  * @property int|null $sueldoBase
+ * @property string $nombre_cargo
  * 
  * @property Usuario $usuario
  *
@@ -41,7 +42,9 @@ class Contrato extends Model
 		'con_nombre',
 		'urlContrato',
 		'tipoContrato',
-		'sueldoBase'
+		'sueldoBase',
+		'nombre_cargo',
+		'fecha_contrato'
 	];
 
 	public function usuario()

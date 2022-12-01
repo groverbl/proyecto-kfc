@@ -14,7 +14,13 @@ use App\Http\Controllers\LiquidacionSueldoController;
 |
 */
 
+Route::get('/informes/liquidacion', function () {
+    return view('/informes/template-liquidacion');
+});
+
 Route::get('/', function () {
     return view('welcome');
 });
 Route::apiResource('liquidacionsueldo', LiquidacionSueldoController::class);
+
+Route::post('liquidacionsueldo/storeFile/{id}', [LiquidacionSueldoController::class, 'storeFile']);

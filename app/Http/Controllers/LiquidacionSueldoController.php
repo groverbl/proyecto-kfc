@@ -8,7 +8,11 @@ use App\Models\Liquidaciondesueldo;
 use App\Models\Contrato;
 use App\Models\LiquidacionBono;
 use App\Models\Bono;
+use App\Models\Usuario;
+
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class LiquidacionSueldoController extends Controller
 {
@@ -19,7 +23,7 @@ class LiquidacionSueldoController extends Controller
      */
     public function index()
     {
-       $liquidaciones = Liquidaciondesueldo::orderBy("fecha_liquidacion")->get();
+       $liquidaciones = Liquidaciondesueldo::where('liq_status', 1)->orderBy("fecha_liquidacion")->get();
        return $liquidaciones;
     
     }
@@ -32,7 +36,7 @@ class LiquidacionSueldoController extends Controller
      */
     public function store(Request $request)
     {
-        $ultimaliquidacion=Liquidaciondesueldo::first();
+        $ultimaliquidacion=Liquidaciondesueldo::orderBy('idLiquidacion',"desc")->first();
         
        Liquidaciondesueldo::create([
             'idLiquidacion'=> $ultimaliquidacion != null ? $ultimaliquidacion->idLiquidacion+1 : 1,
@@ -70,21 +74,44 @@ class LiquidacionSueldoController extends Controller
         
 
 
+
         $cont_aux=Contrato::where('rut', $request['rut'])->first();
         
+        $usuario=Usuario::find($request['rut']);
+        
+
         $data['sueldobase']=(int)$cont_aux->sueldoBase;
         
         $data['gratificacionlegal']= $data['sueldobase']*0.25;
         $data['baseimponible']= $data['sueldobase']+$data['gratificacionlegal'];
         $data['asignaciones']=$asignaciones;
         $data['total_haber']= $data['asignaciones'] + $data['baseimponible'];
-        $data['descuento_afp']= $data['baseimponible']*0.1;
-        $data['descuento_salud']=$data['baseimponible']*0.07;
-        $data['descuento_seguros']=$data['baseimponible']*0.006;
-        $data['total_descuento']=$data['descuento_afp']+$data['descuento_salud']+$data['descuento_seguros'];
-        $data['anticipos']=$request['anticipo'];
-        $data['sueldo_liquido']=$data['total_haber']-$data['total_descuento']-$data['anticipos'];
-        return $data;
+        $data['descuento_afp']= $data['baseimponible']*$usuario->porcentaje_afp;
+        $data['descuento_salud']=$data['baseimponible']*$usuario->porcentaje_salud;
+        if($usuario->ahorro_voluntario==0)
+        {
+            $data['descuento_seguros']=0;
+        }else{
+            $data['descuento_seguros']=$data['baseimponible']*$usuario->porcentaje_ahorro_voluntario;
+        }
+        
+        $data['anticipo']=$request['anticipo'];
+        $data['total_descuento']=$data['descuento_afp']+$data['descuento_salud']+$data['descuento_seguros']+ $data['anticipo'];
+        
+        $data['sueldo_liquido']=$data['total_haber']-$data['total_descuento']-$data['anticipo'];
+
+        $data['nombre'] = $usuario->usu_nombre .  " " . $usuario->apellidoPaterno . " " . $usuario->apellidoMaterno;
+        $data['rut'] = $request['rut'];
+        $data['cargo']= $cont_aux->nombre_cargo;
+        $data['afp']= $usuario->prevision;
+        $data['salud']= $usuario->plan_salud;
+        $data['fecha_contrato']= $cont_aux->fecha_contrato;
+
+        $pdf = new Dompdf();
+        $pdf = \PDF::loadView('/informes/template-liquidacion', compact('data'));
+        $pdf->setPaper('letter');
+        $nombreArchivo = 'Liquidacion' . date("d/m/y") . '.pdf';
+        return $pdf->stream();
     }
 
     /**
@@ -107,7 +134,9 @@ class LiquidacionSueldoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        
+        Liquidaciondesueldo::find($id)->update($request->all());
+        return;
     }
 
     /**
@@ -118,6 +147,22 @@ class LiquidacionSueldoController extends Controller
      */
     public function destroy($id)
     {
-        //
+        
+        Liquidaciondesueldo::find($id)->update([
+            "liq_status"=>0
+        ]);
+        return;
+    }
+
+    public function storeFile(Request $request, $id){
+
+        $lq=Liquidaciondesueldo::find($id);
+        if($request->file()) {
+            $file_name = 'liquidacion'.time().'.'.$request->file('l_file')->extension();
+            $file_path = $request->file('l_file')->storeAs('liquidacion', 'liquidacion_'.time().'.'.$request->file('l_file')->extension(), 'public');
+            $lq->urlLiquidacion=$file_path;
+            $lq->save();
+        }
+        return;
     }
 }

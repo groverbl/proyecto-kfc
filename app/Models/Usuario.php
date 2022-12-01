@@ -28,6 +28,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $prevision
  * @property string|null $plan_salud
  * @property bool|null $ahorro_voluntario
+ * @property float $porcentaje_afp
+ * @property float $porcentaje_salud
+ * @property float $porcentaje_ahorro_voluntario
  * 
  * @property Collection|Contrato[] $contratos
  * @property Collection|Horario[] $horarios
@@ -49,7 +52,10 @@ class Usuario extends Model
 		'tipoUsuario' => 'int',
 		'qrUser' => 'int',
 		'usu_status' => 'bool',
-		'ahorro_voluntario' => 'bool'
+		'ahorro_voluntario' => 'bool',
+		'porcentaje_afp' => 'float',
+		'porcentaje_salud' => 'float',
+		'porcentaje_ahorro_voluntario' => 'float'
 	];
 
 	protected $fillable = [
@@ -67,7 +73,10 @@ class Usuario extends Model
 		'usu_status',
 		'prevision',
 		'plan_salud',
-		'ahorro_voluntario'
+		'ahorro_voluntario',
+		'porcentaje_afp',
+		'porcentaje_salud',
+		'porcentaje_ahorro_voluntario'
 	];
 
 	public function contratos()
