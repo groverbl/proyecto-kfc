@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LiquidacionSueldoController;
+use App\Http\Controllers\HorarioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,10 @@ Route::get('/informes/liquidacion', function () {
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::apiResource('horario', HorarioController::class);
+
 Route::apiResource('liquidacionsueldo', LiquidacionSueldoController::class);
+
 
 Route::post('liquidacionsueldo/storeFile/{id}', [LiquidacionSueldoController::class, 'storeFile']);
